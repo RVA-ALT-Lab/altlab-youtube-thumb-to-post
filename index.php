@@ -55,7 +55,13 @@ function reviewer_check($postID, $currentUser) {
         $score_A = $entries[0]['4'];
         $score_B = $entries[0]['5'];
         $score_C = $entries[0]['6'];
-        $html = "<p>You've already reviewed this video. You gave it the following score: For STORY you gave a $score_A, for TRANSLATION a $score_B, for IMPACT a $score_C.</p>";
+        $html = "<div class='video-text'>You gave this video the following score:</div>
+                    <ul class='video-scores'>
+                        <li>STORY: $score_A</li>
+                        <li>TRANSLATION: $score_B</li>
+                        <li>IMPACT: $score_C</li>
+                    </ul>
+                    <p><a href='http://cobe.vcu.edu/programs/rams-research-roundup/video-submission-gallery/'>Back to the Gallery</a></p>";
         return $html;
     }
     else { return FALSE;
