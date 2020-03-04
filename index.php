@@ -2,9 +2,9 @@
 /*
 Plugin Name: ALT Lab YouTube Thumbnail to Post
 Plugin URI:  https://github.com/
-Description: Get a youtube thumbnail and set it as the featured image of a post
-Version:     1.1
-Author:      ALT Lab (MR)
+Description: Get a youtube thumbnail and set it as the featured image of a post for COBE
+Version:     1.2
+Author:      ALT Lab (Matt Roberts)
 Author URI:  http://altlab.vcu.edu
 License:     GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -13,6 +13,54 @@ Text Domain: my-toolset
 
 */
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
+
+
+
+function get_email($content) {
+    $currentUser = wp_get_current_user();
+    // var_dump($currentUser->user_email);
+    $postID = get_the_ID();
+    $checker = reviewer_check($postID, $currentUser);
+    //Here the category is unique to the COBE site
+    if ( has_category( 158, $post->ID ) && $checker != FALSE ) {
+        // print("<pre>".print_r(reviewer_check($postID, $currentUser),true)."</pre>");
+        return $checker . strip_shortcodes($content);
+    }
+    else {
+        return $content;
+    }
+}
+
+add_filter( 'the_content', 'get_email' );
+
+//Here the search for the PostID and user_email is unique to the COBE site
+function reviewer_check($postID, $currentUser) {
+    $search_criteria = array(
+        'status'        => 'active',
+        'field_filters' => array(
+            'mode' => 'all',
+            array(
+                'key'   => '7',
+                'value' => $postID
+            ),
+            array(
+                'key'   => '8',
+                'value' => $currentUser->user_email
+            )
+        )
+    );
+    //Here the GF field IDs are unique to the COBE site
+    $entries         = GFAPI::get_entries( 2, $search_criteria );
+    if ( $entries ) {
+        $score_A = $entries[0]['4'];
+        $score_B = $entries[0]['5'];
+        $score_C = $entries[0]['6'];
+        $html = "<p>You've already reviewed this video. You gave it the following score: For STORY you gave a $score_A, for TRANSLATION a $score_B, for IMPACT a $score_C.</p>";
+        return $html;
+    }
+    else { return FALSE;
+    }
+}
 
 
 function getYouTubeVideoId($pageVideUrl) {
